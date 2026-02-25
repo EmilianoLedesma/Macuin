@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Pedido #{{ "%03d"|format(pedido_id) }}{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="breadcrumb">
+  <a href="{{ url_for('index') }}">Inicio</a>
+  <span class="breadcrumb__sep">/</span>
+  <a href="{{ url_for('pedidos_lista') }}">Gestión de Pedidos</a>
+  <span class="breadcrumb__sep">/</span>
+  <span>Pedido #{{ "%03d"|format(pedido_id) }}</span>
+</nav>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-header__title">Pedido #{{ "%03d"|format(pedido_id) }}</h1>
+    <p class="page-header__subtitle">
+      {% if detalle %}
+        Realizado el {{ detalle.pedido.fecha }}
+      {% endif %}
+    </p>
+  </div>
+  <a href="{{ url_for('pedidos_lista') }}" class="btn btn--secondary">← Volver a pedidos</a>
+</div>
+
+{% if detalle %}
+
+<!-- Dos columnas: datos del cliente + resumen del pedido -->
+<div class="detail-grid">
+
+  <div class="detail-card">
+    <div class="detail-card__title">Información del cliente</div>
+    <div class="detail-card__row">
+      <span class="detail-card__field">Nombre</span>
+      <span class="detail-card__value">{{ detalle.pedido.cliente }}</span>
+    </div>
+    <div class="detail-card__row">
+      <span class="detail-card__field">Teléfono</span>
+      <span class="detail-card__value">{{ detalle.pedido.telefono }}</span>
+    </div>
+    <div class="detail-card__row">
+      <span class="detail-card__field">Correo</span>
+      <span class="detail-card__value">{{ detalle.pedido.email }}</span>
+    </div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-card__title">Resumen del pedido</div>
+    <div class="detail-card__row">
+      <span class="detail-card__field">Estado actual</span>
+      <span class="detail-card__value">
+        {% set estado_lower = detalle.pedido.estado | lower %}
+        <span class="badge badge--{{ estado_lower }}">{{ detalle.pedido.estado }}</span>
+      </span>
+    </div>
+    <div class="detail-card__row">
+      <span class="detail-card__field">Fecha</span>
+      <span class="detail-card__value">{{ detalle.pedido.fecha }}</span>
+    </div>
+    <div class="detail-card__row">
+      <span class="detail-card__field">Total</span>
+      <span class="detail-card__value">${{ "%.2f"|format(detalle.total) }}</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Tabla de autopartes del pedido -->
+<div class="table-wrapper">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Autoparte</th>
+        <th>Cantidad</th>
+        <th>Precio unitario</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in detalle.items %}
+      <tr>
+        <td><strong>{{ item.nombre }}</strong></td>
+        <td>{{ item.cantidad }}</td>
+        <td>${{ "%.2f"|format(item.precio_unitario) }}</td>
+        <td>${{ "%.2f"|format(item.subtotal) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="detail-total">
+    Total del pedido <span>${{ "%.2f"|format(detalle.total) }}</span>
+  </div>
+</div>
+
+<!-- Cambiar estado -->
+<div class="status-change">
+  <label class="form__label" style="margin:0">Cambiar estado:</label>
+  <select class="filters__select">
+    {% for estado in estados %}
+      <option value="{{ estado }}"
+        {% if detalle.pedido.estado == estado %}selected{% endif %}>
+        {{ estado }}
+      </option>
+    {% endfor %}
+  </select>
+  <button class="btn btn--primary btn--sm">Aplicar cambio</button>
+</div>
+
+{% else %}
+  <p>Pedido no encontrado.</p>
+{% endif %}
+
+{% endblock %}

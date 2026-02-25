@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Autopartes{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-header__title">Autopartes</h1>
+    <p class="page-header__subtitle">Catálogo general de productos</p>
+  </div>
+  <a href="{{ url_for('autopartes_nueva') }}" class="btn btn--primary">+ Agregar Autoparte</a>
+</div>
+
+<!-- Contadores -->
+<div class="stats-row">
+  <div class="stat-card stat-card--success">
+    <div class="stat-card__label">En stock</div>
+    <div class="stat-card__value">{{ en_stock }}</div>
+  </div>
+  <div class="stat-card stat-card--warning">
+    <div class="stat-card__label">Bajo stock</div>
+    <div class="stat-card__value">{{ bajo_stock }}</div>
+  </div>
+  <div class="stat-card stat-card--danger">
+    <div class="stat-card__label">Sin stock</div>
+    <div class="stat-card__value">{{ sin_stock }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card__label">Categorías</div>
+    <div class="stat-card__value">{{ total_cats }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card__label">Marcas</div>
+    <div class="stat-card__value">{{ total_marcas }}</div>
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="filters">
+  <select class="filters__select">
+    <option value="">Todas las categorías</option>
+    {% for cat in categorias %}
+      <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+    {% endfor %}
+  </select>
+  <select class="filters__select">
+    <option value="">Todas las marcas</option>
+    {% for marca in marcas %}
+      <option value="{{ marca }}">{{ marca }}</option>
+    {% endfor %}
+  </select>
+  <input class="filters__input" type="text" placeholder="Buscar por nombre o descripción…">
+</div>
+
+<!-- Tabla -->
+<div class="table-wrapper">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Categoría</th>
+        <th>Marca</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for autoparte in autopartes %}
+      <tr>
+        <td>#{{ "%03d"|format(autoparte.id) }}</td>
+        <td><strong>{{ autoparte.nombre }}</strong></td>
+        <td>{{ autoparte.categoria }}</td>
+        <td>{{ autoparte.marca }}</td>
+        <td>${{ "%.2f"|format(autoparte.precio) }}</td>
+        <td>{{ autoparte.stock }}</td>
+        <td>
+          {% if autoparte.estado == "Disponible" %}
+            <span class="badge badge--disponible">Disponible</span>
+          {% elif autoparte.estado == "Bajo stock" %}
+            <span class="badge badge--bajo-stock">Bajo stock</span>
+          {% else %}
+            <span class="badge badge--sin-stock">Sin stock</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{{ url_for('autopartes_editar', autoparte_id=autoparte.id) }}" class="btn btn--secondary btn--sm">Editar</a>
+          <button class="btn btn--danger btn--sm">Eliminar</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Paginación -->
+  <div class="pagination">
+    <span class="pagination__info">Mostrando {{ autopartes|length }} de {{ autopartes|length }} registros</span>
+    <a href="#" class="pagination__btn">«</a>
+    <a href="#" class="pagination__btn pagination__btn--active">1</a>
+    <a href="#" class="pagination__btn">2</a>
+    <a href="#" class="pagination__btn">»</a>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+# Environment
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+env/
+ENV/
+
+# PHP / Laravel
+vendor/
+node_modules/
+.phpunit.cache
+storage/logs/*.log
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+bootstrap/cache/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+public/storage
+
+# Docker
+*.override.yml
+
+# MySQL data (never commit DB volumes)
+mysql_data/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Compiled assets
+*.css.map
+*.js.map
+
+.claude/

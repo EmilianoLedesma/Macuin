@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Pedidos{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-header__title">Gestión de Pedidos</h1>
+    <p class="page-header__subtitle">Seguimiento y control de órdenes</p>
+  </div>
+  <a href="#" class="btn btn--primary">+ Agregar Pedido</a>
+</div>
+
+<!-- Contadores -->
+<div class="stats-row">
+  <div class="stat-card stat-card--success">
+    <div class="stat-card__label">Completados</div>
+    <div class="stat-card__value">{{ completados }}</div>
+  </div>
+  <div class="stat-card stat-card--warning">
+    <div class="stat-card__label">Pendientes</div>
+    <div class="stat-card__value">{{ pendientes }}</div>
+  </div>
+  <div class="stat-card stat-card--danger">
+    <div class="stat-card__label">Cancelados</div>
+    <div class="stat-card__value">{{ cancelados }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card__label">Total</div>
+    <div class="stat-card__value">{{ total_pedidos }}</div>
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="filters">
+  <select class="filters__select">
+    <option value="">Todos los estados</option>
+    {% for estado in estados %}
+      <option value="{{ estado }}">{{ estado }}</option>
+    {% endfor %}
+  </select>
+  <input class="filters__date" type="date" title="Fecha desde">
+  <input class="filters__date" type="date" title="Fecha hasta">
+  <input class="filters__input" type="text" placeholder="Buscar por cliente o ID…">
+</div>
+
+<!-- Tabla -->
+<div class="table-wrapper">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th></th>
+        <th>Cliente</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+        <th>Total</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pedido in pedidos %}
+      <tr>
+        <td>#{{ "%03d"|format(pedido.id) }}</td>
+        <td><span class="table__img-placeholder"></span></td>
+        <td><strong>{{ pedido.cliente }}</strong></td>
+        <td>{{ pedido.fecha }}</td>
+        <td>
+          {% set estado_lower = pedido.estado | lower %}
+          <span class="badge badge--{{ estado_lower }}">{{ pedido.estado }}</span>
+        </td>
+        <td>${{ "%.2f"|format(pedido.total) }}</td>
+        <td>
+          <a href="{{ url_for('pedidos_detalle', pedido_id=pedido.id) }}" class="btn btn--secondary btn--sm">Ver detalle</a>
+          <button class="btn btn--danger btn--sm">Eliminar</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <span class="pagination__info">Mostrando {{ pedidos|length }} de {{ pedidos|length }} registros</span>
+    <a href="#" class="pagination__btn">«</a>
+    <a href="#" class="pagination__btn pagination__btn--active">1</a>
+    <a href="#" class="pagination__btn">2</a>
+    <a href="#" class="pagination__btn">»</a>
+  </div>
+</div>
+
+{% endblock %}
