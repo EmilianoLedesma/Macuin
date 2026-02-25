@@ -57,3 +57,5 @@ npm-debug.log*
 *.js.map
 
 .claude/
+*.md
+ 
