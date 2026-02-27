@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar sesión — MACUIN</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 <body>
 
@@ -19,9 +19,9 @@
     <div class="login-card__body">
       <h2 class="login-card__title">Acceso al panel interno</h2>
 
-      {% if error %}
-        <div class="login-card__error">{{ error }}</div>
-      {% endif %}
+      @if(session('error'))
+        <div class="login-card__error">{{ session('error') }}</div>
+      @endif
 
       <!-- Datos mockeados: cualquier correo y contraseña funciona en producción real -->
       <!-- Demo: admin@macuin.mx / 12345 -->

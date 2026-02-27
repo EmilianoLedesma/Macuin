@@ -54,7 +54,7 @@ services:
       - db
 
   # -----------------------------------------------------------
-  # Flask — cliente interno (panel administrativo)
+  # Flask — API interna (JSON)
   # -----------------------------------------------------------
   flask:
     build:
@@ -76,15 +76,22 @@ services:
       - ./flask_app:/app
 
   # -----------------------------------------------------------
-  # Laravel — cliente externo (reservado para entregable futuro)
+  # Laravel — cliente web con interfaces HTML (Blade)
   # -----------------------------------------------------------
   laravel:
-    image: php:8.2-fpm
+    build:
+      context: ./laravel_app
+      dockerfile: Dockerfile
     container_name: macuin_laravel
     restart: unless-stopped
+    environment:
+      APP_ENV:   local
+      APP_DEBUG: "true"
+      APP_URL:   http://localhost:${LARAVEL_PORT:-8080}
+    ports:
+      - "${LARAVEL_PORT:-8080}:8000"
     networks:
       - macuin_network
-    volumes:
-      - ./laravel_app:/var/www/html
-    profiles:
-      - future
+    depends_on:
+      db:
+        condition: service_healthy

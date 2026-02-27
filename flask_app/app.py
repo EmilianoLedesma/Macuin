@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, jsonify
 from dotenv import load_dotenv
 import os
 
@@ -69,7 +69,7 @@ DETALLE_PEDIDO = {
     2: {
         "pedido": PEDIDOS[1],
         "items": [
-            {"nombre": "Alternador",        "cantidad": 1, "precio_unitario": 1200.00, "subtotal": 1200.00},
+            {"nombre": "Alternador", "cantidad": 1, "precio_unitario": 1200.00, "subtotal": 1200.00},
         ],
         "total": 1200.00,
     },
@@ -121,96 +121,70 @@ DETALLE_PEDIDO = {
 }
 
 # =============================================================
-# Rutas
+# API — endpoints JSON (la capa de presentación vive en Laravel)
 # =============================================================
 
-@app.route("/")
-def index():
-    return redirect(url_for("login"))
-
-
-@app.route("/login")
-def login():
-    return render_template("auth/login.html", error=None)
-
-
-@app.route("/autopartes")
-def autopartes_lista():
-    en_stock    = sum(1 for a in AUTOPARTES if a["estado"] == "Disponible")
-    bajo_stock  = sum(1 for a in AUTOPARTES if a["estado"] == "Bajo stock")
-    sin_stock   = sum(1 for a in AUTOPARTES if a["estado"] == "Sin stock")
-    total_cats  = len(CATEGORIAS)
+@app.route("/api/autopartes")
+def api_autopartes():
+    en_stock     = sum(1 for a in AUTOPARTES if a["estado"] == "Disponible")
+    bajo_stock   = sum(1 for a in AUTOPARTES if a["estado"] == "Bajo stock")
+    sin_stock    = sum(1 for a in AUTOPARTES if a["estado"] == "Sin stock")
     total_marcas = len(set(a["marca"] for a in AUTOPARTES))
 
-    return render_template(
-        "autopartes/lista.html",
-        autopartes=AUTOPARTES,
-        categorias=CATEGORIAS,
-        marcas=MARCAS,
-        en_stock=en_stock,
-        bajo_stock=bajo_stock,
-        sin_stock=sin_stock,
-        total_cats=total_cats,
-        total_marcas=total_marcas,
-    )
+    return jsonify({
+        "autopartes": AUTOPARTES,
+        "categorias": CATEGORIAS,
+        "marcas":     MARCAS,
+        "stats": {
+            "en_stock":     en_stock,
+            "bajo_stock":   bajo_stock,
+            "sin_stock":    sin_stock,
+            "total_cats":   len(CATEGORIAS),
+            "total_marcas": total_marcas,
+        },
+    })
 
 
-@app.route("/autopartes/nueva")
-def autopartes_nueva():
-    return render_template(
-        "autopartes/formulario.html",
-        autoparte=None,
-        categorias=CATEGORIAS,
-        modo="nueva",
-    )
-
-
-@app.route("/autopartes/<int:autoparte_id>/editar")
-def autopartes_editar(autoparte_id):
+@app.route("/api/autopartes/<int:autoparte_id>")
+def api_autoparte(autoparte_id):
     autoparte = next((a for a in AUTOPARTES if a["id"] == autoparte_id), None)
-    return render_template(
-        "autopartes/formulario.html",
-        autoparte=autoparte,
-        categorias=CATEGORIAS,
-        modo="editar",
-    )
+    if autoparte is None:
+        return jsonify({"error": "Autoparte no encontrada"}), 404
+    return jsonify({"autoparte": autoparte, "categorias": CATEGORIAS})
 
 
-@app.route("/inventarios")
-def inventarios_lista():
-    return render_template(
-        "inventarios/lista.html",
-        inventarios=INVENTARIOS,
-        categorias=CATEGORIAS,
-    )
+@app.route("/api/inventarios")
+def api_inventarios():
+    return jsonify({
+        "inventarios": INVENTARIOS,
+        "categorias":  CATEGORIAS,
+    })
 
 
-@app.route("/pedidos")
-def pedidos_lista():
+@app.route("/api/pedidos")
+def api_pedidos():
     completados = sum(1 for p in PEDIDOS if p["estado"] in ("ENVIADO", "SURTIDO"))
     pendientes  = sum(1 for p in PEDIDOS if p["estado"] in ("CREADO", "CONFIRMADO"))
     cancelados  = sum(1 for p in PEDIDOS if p["estado"] == "CANCELADO")
 
-    return render_template(
-        "pedidos/lista.html",
-        pedidos=PEDIDOS,
-        estados=ESTADOS_PEDIDO,
-        completados=completados,
-        pendientes=pendientes,
-        cancelados=cancelados,
-        total_pedidos=len(PEDIDOS),
-    )
+    return jsonify({
+        "pedidos": PEDIDOS,
+        "estados": ESTADOS_PEDIDO,
+        "stats": {
+            "completados": completados,
+            "pendientes":  pendientes,
+            "cancelados":  cancelados,
+            "total":       len(PEDIDOS),
+        },
+    })
 
 
-@app.route("/pedidos/<int:pedido_id>")
-def pedidos_detalle(pedido_id):
+@app.route("/api/pedidos/<int:pedido_id>")
+def api_pedido_detalle(pedido_id):
     detalle = DETALLE_PEDIDO.get(pedido_id)
-    return render_template(
-        "pedidos/detalle.html",
-        detalle=detalle,
-        estados=ESTADOS_PEDIDO,
-        pedido_id=pedido_id,
-    )
+    if detalle is None:
+        return jsonify({"error": "Pedido no encontrado"}), 404
+    return jsonify({"detalle": detalle, "estados": ESTADOS_PEDIDO})
 
 
 if __name__ == "__main__":
