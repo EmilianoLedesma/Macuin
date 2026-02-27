@@ -1,23 +1,23 @@
-{% extends "base.html" %}
+@extends('layouts.app')
 
-{% block title %}{% if modo == "nueva" %}Nueva Autoparte{% else %}Editar Autoparte{% endif %}{% endblock %}
+@section('title', $modo === 'nueva' ? 'Nueva Autoparte' : 'Editar Autoparte')
 
-{% block content %}
+@section('content')
 
 <div class="page-header">
   <div>
     <h1 class="page-header__title">
-      {% if modo == "nueva" %}Nueva Autoparte{% else %}Editar Autoparte{% endif %}
+      {{ $modo === 'nueva' ? 'Nueva Autoparte' : 'Editar Autoparte' }}
     </h1>
     <p class="page-header__subtitle">
-      {% if modo == "nueva" %}
+      @if($modo === 'nueva')
         Completa los campos para registrar una nueva autoparte en el catálogo.
-      {% else %}
+      @else
         Modifica los datos de la autoparte seleccionada.
-      {% endif %}
+      @endif
     </p>
   </div>
-  <a href="{{ url_for('autopartes_lista') }}" class="btn btn--secondary">← Volver al listado</a>
+  <a href="{{ route('autopartes.index') }}" class="btn btn--secondary">← Volver al listado</a>
 </div>
 
 <div class="form-card">
@@ -32,7 +32,7 @@
         id="nombre"
         name="nombre"
         placeholder="Ej. Filtro de aceite premium"
-        value="{{ autoparte.nombre if autoparte else '' }}"
+        value="{{ $autoparte['nombre'] ?? '' }}"
         required
       >
     </div>
@@ -45,7 +45,7 @@
         id="descripcion"
         name="descripcion"
         placeholder="Descripción técnica de la autoparte, compatibilidad, especificaciones…"
-      >{{ autoparte.descripcion if autoparte and autoparte.descripcion else '' }}</textarea>
+      >{{ $autoparte['descripcion'] ?? '' }}</textarea>
     </div>
 
     <!-- Categoría + Marca -->
@@ -54,12 +54,12 @@
         <label class="form__label" for="categoria_id">Categoría</label>
         <select class="form__select" id="categoria_id" name="categoria_id" required>
           <option value="">Seleccionar categoría</option>
-          {% for cat in categorias %}
-            <option value="{{ cat.id }}"
-              {% if autoparte and autoparte.categoria == cat.nombre %}selected{% endif %}>
-              {{ cat.nombre }}
+          @foreach($categorias as $cat)
+            <option value="{{ $cat['id'] }}"
+              {{ ($autoparte && $autoparte['categoria'] === $cat['nombre']) ? 'selected' : '' }}>
+              {{ $cat['nombre'] }}
             </option>
-          {% endfor %}
+          @endforeach
         </select>
       </div>
       <div>
@@ -70,7 +70,7 @@
           id="marca"
           name="marca"
           placeholder="Ej. Bosch, NGK, Monroe"
-          value="{{ autoparte.marca if autoparte else '' }}"
+          value="{{ $autoparte['marca'] ?? '' }}"
         >
       </div>
     </div>
@@ -87,7 +87,7 @@
           step="0.01"
           min="0"
           placeholder="0.00"
-          value="{{ autoparte.precio if autoparte else '' }}"
+          value="{{ $autoparte['precio'] ?? '' }}"
           required
         >
       </div>
@@ -104,7 +104,7 @@
           type="checkbox"
           id="activo"
           name="activo"
-          {% if not autoparte or autoparte.activo %}checked{% endif %}
+          {{ (!$autoparte || $autoparte['activo']) ? 'checked' : '' }}
         >
         <label class="form__checkbox-label" for="activo">Autoparte activa (visible en el sistema)</label>
       </div>
@@ -112,12 +112,12 @@
 
     <div class="form-actions">
       <button type="submit" class="btn btn--primary">
-        {% if modo == "nueva" %}Guardar autoparte{% else %}Guardar cambios{% endif %}
+        {{ $modo === 'nueva' ? 'Guardar autoparte' : 'Guardar cambios' }}
       </button>
-      <a href="{{ url_for('autopartes_lista') }}" class="btn btn--secondary">Cancelar</a>
+      <a href="{{ route('autopartes.index') }}" class="btn btn--secondary">Cancelar</a>
     </div>
 
   </form>
 </div>
 
-{% endblock %}
+@endsection

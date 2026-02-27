@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+@extends('layouts.app')
 
-{% block title %}Pedidos{% endblock %}
+@section('title', 'Pedidos')
 
-{% block content %}
+@section('content')
 
 <div class="page-header">
   <div>
@@ -16,19 +16,19 @@
 <div class="stats-row">
   <div class="stat-card stat-card--success">
     <div class="stat-card__label">Completados</div>
-    <div class="stat-card__value">{{ completados }}</div>
+    <div class="stat-card__value">{{ $completados }}</div>
   </div>
   <div class="stat-card stat-card--warning">
     <div class="stat-card__label">Pendientes</div>
-    <div class="stat-card__value">{{ pendientes }}</div>
+    <div class="stat-card__value">{{ $pendientes }}</div>
   </div>
   <div class="stat-card stat-card--danger">
     <div class="stat-card__label">Cancelados</div>
-    <div class="stat-card__value">{{ cancelados }}</div>
+    <div class="stat-card__value">{{ $cancelados }}</div>
   </div>
   <div class="stat-card">
     <div class="stat-card__label">Total</div>
-    <div class="stat-card__value">{{ total_pedidos }}</div>
+    <div class="stat-card__value">{{ $total_pedidos }}</div>
   </div>
 </div>
 
@@ -36,9 +36,9 @@
 <div class="filters">
   <select class="filters__select">
     <option value="">Todos los estados</option>
-    {% for estado in estados %}
-      <option value="{{ estado }}">{{ estado }}</option>
-    {% endfor %}
+    @foreach($estados as $estado)
+      <option value="{{ $estado }}">{{ $estado }}</option>
+    @endforeach
   </select>
   <input class="filters__date" type="date" title="Fecha desde">
   <input class="filters__date" type="date" title="Fecha hasta">
@@ -60,28 +60,27 @@
       </tr>
     </thead>
     <tbody>
-      {% for pedido in pedidos %}
+      @foreach($pedidos as $pedido)
       <tr>
-        <td>#{{ "%03d"|format(pedido.id) }}</td>
+        <td>#{{ str_pad($pedido['id'], 3, '0', STR_PAD_LEFT) }}</td>
         <td><span class="table__img-placeholder"></span></td>
-        <td><strong>{{ pedido.cliente }}</strong></td>
-        <td>{{ pedido.fecha }}</td>
+        <td><strong>{{ $pedido['cliente'] }}</strong></td>
+        <td>{{ $pedido['fecha'] }}</td>
         <td>
-          {% set estado_lower = pedido.estado | lower %}
-          <span class="badge badge--{{ estado_lower }}">{{ pedido.estado }}</span>
+          <span class="badge badge--{{ strtolower($pedido['estado']) }}">{{ $pedido['estado'] }}</span>
         </td>
-        <td>${{ "%.2f"|format(pedido.total) }}</td>
+        <td>${{ number_format($pedido['total'], 2) }}</td>
         <td>
-          <a href="{{ url_for('pedidos_detalle', pedido_id=pedido.id) }}" class="btn btn--secondary btn--sm">Ver detalle</a>
+          <a href="{{ route('pedidos.show', $pedido['id']) }}" class="btn btn--secondary btn--sm">Ver detalle</a>
           <button class="btn btn--danger btn--sm">Eliminar</button>
         </td>
       </tr>
-      {% endfor %}
+      @endforeach
     </tbody>
   </table>
 
   <div class="pagination">
-    <span class="pagination__info">Mostrando {{ pedidos|length }} de {{ pedidos|length }} registros</span>
+    <span class="pagination__info">Mostrando {{ count($pedidos) }} de {{ count($pedidos) }} registros</span>
     <a href="#" class="pagination__btn">«</a>
     <a href="#" class="pagination__btn pagination__btn--active">1</a>
     <a href="#" class="pagination__btn">2</a>
@@ -89,4 +88,4 @@
   </div>
 </div>
 
-{% endblock %}
+@endsection

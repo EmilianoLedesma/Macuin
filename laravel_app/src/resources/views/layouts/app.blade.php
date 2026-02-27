@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}MACUIN{% endblock %} — Panel Interno</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>@yield('title', 'MACUIN') — Panel Interno</title>
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 <body>
 
@@ -13,15 +13,15 @@
   <!-- Sidebar de navegación -->
   <aside class="sidebar">
     <div class="sidebar__brand">
-      <a href="{{ url_for('autopartes_lista') }}" class="sidebar__logo">MACUIN</a>
+      <a href="{{ route('autopartes.index') }}" class="sidebar__logo">MACUIN</a>
       <span class="sidebar__tagline">Panel interno</span>
     </div>
 
     <p class="sidebar__section-title">Catálogo</p>
     <ul class="sidebar__nav">
       <li class="sidebar__nav-item">
-        <a href="{{ url_for('autopartes_lista') }}"
-           class="sidebar__nav-link {% if request.endpoint and 'autopartes' in request.endpoint %}sidebar__nav-link--active{% endif %}">
+        <a href="{{ route('autopartes.index') }}"
+           class="sidebar__nav-link {{ request()->routeIs('autopartes.*') ? 'sidebar__nav-link--active' : '' }}">
           Autopartes
         </a>
       </li>
@@ -30,27 +30,27 @@
     <p class="sidebar__section-title">Operaciones</p>
     <ul class="sidebar__nav">
       <li class="sidebar__nav-item">
-        <a href="{{ url_for('inventarios_lista') }}"
-           class="sidebar__nav-link {% if request.endpoint == 'inventarios_lista' %}sidebar__nav-link--active{% endif %}">
+        <a href="{{ route('inventarios.index') }}"
+           class="sidebar__nav-link {{ request()->routeIs('inventarios.index') ? 'sidebar__nav-link--active' : '' }}">
           Inventario
         </a>
       </li>
       <li class="sidebar__nav-item">
-        <a href="{{ url_for('pedidos_lista') }}"
-           class="sidebar__nav-link {% if request.endpoint and 'pedidos' in request.endpoint %}sidebar__nav-link--active{% endif %}">
+        <a href="{{ route('pedidos.index') }}"
+           class="sidebar__nav-link {{ request()->routeIs('pedidos.*') ? 'sidebar__nav-link--active' : '' }}">
           Pedidos
         </a>
       </li>
     </ul>
 
     <div class="sidebar__footer">
-      <a href="{{ url_for('login') }}" class="sidebar__logout">Cerrar sesión</a>
+      <a href="{{ route('login') }}" class="sidebar__logout">Cerrar sesión</a>
     </div>
   </aside>
 
   <!-- Contenido principal -->
   <main class="layout__content">
-    {% block content %}{% endblock %}
+    @yield('content')
   </main>
 
 </div>
